@@ -302,3 +302,96 @@ const userList: [string, string, number][] = [
 ```
 
 > 元组中的数组长度和类型都是固定的
+
+### interface 接口
+
+主要使用 interface 来定义类型，否则使用 type 来定义
+
+```js
+// type 定义
+type Person = {
+  name: string
+}
+
+// interface 定义
+interface Person {
+  // 属性定义
+  readonly username: string;
+  name: string;
+  age?: number;
+
+  // 可以自定义传入多个属性
+  [propName: string]: any;
+
+  // 方法定义
+  sayHello(): string;
+}
+
+const person = {
+  name: 'King',
+  age: 18,
+  sex: 'male',
+  say() {
+    return 'hi';
+  }
+}
+
+// 类实现
+class User implements Person {
+  name = 'King';
+  say() {
+    return 'hi';
+  }
+}
+
+// 接口继承接口
+interface Teacher extends Person {
+  teach(): string;
+}
+
+// 定义interface的函数类型
+interface SayHi {
+  (word: string): string
+}
+
+cosnt say: SayHi = (word: string) => {
+  return word;
+}
+```
+
+> 使用 tsc --init 会生成 tsconfig.json 配置文件
+
+### 类的定义与继承
+
+```js
+class Person {
+  // 类属性
+  name = 'king';
+
+  // 类方法
+  getName() {
+    return this.name;
+  }
+}
+
+const person = new Person();
+console.log(person.getName());
+
+class Teacher extends Person {
+  getTearcherName() {
+    return 'Teacher';
+  }
+
+  // 复写父类的方法
+  getName() {
+    return 'teacher ' + super.getName();
+  }
+}
+
+const teacher = new Teacher();
+console.log(teacher.getName());
+console.log(teacher.getTearcherName());
+
+// 执行
+// ts-node test.ts
+```
