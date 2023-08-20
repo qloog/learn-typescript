@@ -395,3 +395,101 @@ console.log(teacher.getTearcherName());
 // 执行
 // ts-node test.ts
 ```
+
+### 类中的访问类型和构造函数
+
+#### 访问类型
+
+主要包含：private, protected, public(默认)
+
+默认情况下，属性和类方法都是 `public`, `private` 只允许在类的内部使用，`protected` 只允许在类内部及其子类调用。
+
+#### 构造函数
+
+```js
+class Person {
+  // 传统写法
+  // private name: string;
+  // 在实例化类的时候自动执行
+  // constructor(name: string) {
+  //   this.name = name;
+  // }
+
+  // 简单写法，等价与上面的写法
+  constructor(public name: string) {
+
+  }
+}
+
+const person = new Person('King');
+console.log(person.name);
+// Output:
+// King
+
+class Teacher extends Person {
+  constructor(public age: number) {
+    // 子类继承父类，必须调用父类的构造函数，如果有参数需要传入对应的参数
+    // 如果父类没有参数，可以不传：super()
+    super('King');
+  }
+}
+
+const teacher = new Teacher(28);
+console.log(teacher.Name + teacher.age);
+// Output: 
+// King: 28
+```
+
+### 静态属性，Setter和Getter
+
+```js
+class Person {
+  // 简单写法，等价与上面的写法
+  constructor(private _name: string) {}
+
+  // getter
+  get name() {
+    return this._name;
+  }
+  // setter
+  set name(name: string) {
+    this._name = name;
+  }
+}
+
+const person = new Person('King');
+// 这里不用 person.name();
+console.log(person.name);
+// Output: King
+person.name = 'Queue';
+console.log(person.name);
+// Output: Queue
+```
+
+#### 单例模式
+
+```js
+class Demo {
+  private static instance: Demo;
+
+  private constructor(public name: string) {}
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new Demo('King');
+    }
+
+    return this.instance;
+  }
+}
+
+const demo1 = Demo.getInstance();
+const demo2 = Demo.getInstance();
+console.log(demo1 == demo2);
+console.log(demo1.name);
+console.log(demo2.name);
+// Output:
+// true
+// King
+// King
+```
