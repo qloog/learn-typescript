@@ -493,3 +493,22 @@ console.log(demo2.name);
 // King
 // King
 ```
+
+### 抽象类
+
+```js
+abstract class Geom {
+  abstract getArea(): number;
+}
+
+class Circle extends Geom {
+  getArea() {
+    return 123;
+  }
+}
+
+// new Geom()  -> 不可以
+// new Circle() -> 可以
+```
+
+抽象类只能被继承，不能被实例化。
