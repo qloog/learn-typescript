@@ -512,3 +512,253 @@ class Circle extends Geom {
 ```
 
 抽象类只能被继承，不能被实例化。
+
+### 联合类型和类型保护
+
+```js
+interface Bird {
+  fly: boolean;
+  sing: () => {};
+}
+
+interface Dog {
+  fly: boolean;
+  bark: () => {};
+}
+
+function trainAnimal(animal: Bird | Dog) {
+  // 此时 animal 是一个联合类型, 只会提示共有的属性：fly
+  // 调用 animal.sing() 或者 animal.brak() 会报错
+
+  // 1、这时可以使用类型断言的方式来进行类型保护
+  (animal as Bird).sing();
+  // 或
+  (animal as Dog).bark();
+
+  // 2、使用 in 语法来做类型保护
+  if ('sing' in animal) {
+    animal.sing();
+  } else {
+    // 此时在编辑器会有提示了，typescript 会自动检测
+    animal.bark();
+  }
+}
+
+// 3、如果是数字或字符串，也可以使用 typeof来进行类型保护
+function add(a: string | number, b: string | number) {
+  if (typeof a === 'string'  || typeof b === 'string') {
+    return `${a}${b}`;
+  }
+
+  return a + b;
+}
+
+// 4、如果是对象可以使用 instanceof 进行断言
+```
+
+### Enum 枚举类型
+
+js 写法
+
+```js
+const Status = {
+  OFFLINE: 0,
+  ONLINE: 1,
+  DELETED: 2
+}
+
+function getResult(status) {
+  if (status === Status.OFFLINE) {
+    return 'offline';
+  } else if (status === Status.ONLINE) {
+    return 'online';
+  } else if (status == Status.DELETED) {
+    return 'deleted';
+  }
+  return 'error';
+}
+
+const result = getResult(Status.OFFLINE);
+console.log(reuslt);
+
+// Output: offline
+```
+
+ts 写法
+
+```js
+// 数值默认会从0增加，所以对应的也是0,1,2
+enum Status {
+  OFFLINE,
+  ONLINE,
+  DELETED
+}
+
+function getResult(status: Status) {
+  if (status === Status.OFFLINE) {
+    return 'offline';
+  } else if (status === Status.ONLINE) {
+    return 'online';
+  } else if (status == Status.DELETED) {
+    return 'deleted';
+  }
+  return 'error';
+}
+
+const result = getResult(Status.OFFLINE);
+console.log(result);
+
+console.log(Status[0]); // OFFLINE, 可以相互映射
+
+// 如果想改变枚举的初始值，可以这样写
+enum Status {
+  OFFLINE = 1,
+  ONLINE,
+  DELETED
+}
+
+console.log(Status[1]); // OFFLINE
+```
+
+### 泛型
+
+泛型：generic 泛指的类型
+
+#### 函数泛型
+
+```js
+function join<T>(first: T, second: T) {
+  return `${first}${second}`;
+}
+
+// 返回类型也可以是T
+function join<T>(first: T, second: T): T {
+  return first;
+}
+
+// 也可以是不同的参数类型
+function join2<T, P>(first: T, second: P) {
+  return `${first}${second}`;
+}
+
+join<string>('1', '2');
+join<number>(1, 2);
+// 如果不指定类型，ts也会推断出参数的类型
+join(1, '2');
+
+join2<number, string>(1, '2');
+```
+
+#### 类的泛型
+
+```js
+// example 1
+class DataManager<T> {
+  constructor(private data: T[]) {}
+
+  getItem(index: number): T {
+    return this.data[index];
+  }
+}
+
+const data = new DataManager<number>([1]);
+data.getItem(0);
+
+// example 2: 对T做类型约束，比如只能是字符串或者数字类型
+class DataManager<T extends number | string> {
+  constructor(private data: T[]) {}
+
+  getItem(index: number): T {
+    return this.data[index];
+  }
+}
+
+// number
+const data = new DataManager<number>([1]);
+data.getItem(0);
+// string
+const data = new DataManager<string>([1]);
+data.getItem(0);
+
+// example 3
+interface Item {
+  name: string;
+}
+
+class DataManager<T extends Item> {
+  constructor(private data: T[]) {}
+
+  getItem(index: number): string {
+    return this.data[index].name;
+  }
+}
+
+const data = new DataManager([
+  {
+    name: 'King'
+  }
+]);
+data.getItem(0);
+```
+
+### 命名空间 namespace
+
+可以防止滥用全局变量
+
+```js
+namespace Home {
+  class Header {}
+  class Content {}
+  class Footer {}
+
+  // 必须使用 export 进行导出，否则 `Home.Page` 也无法调用
+  export class Page {
+    constructor() {
+      new Header();
+      new Content();
+      new Footer();
+    }
+  }
+}
+```
+
+在页面中可以使用 `new Home.Page()` 进行调用;
+
+组件之间引用代码
+
+```js
+// components.ts
+namespace Components {
+  export class Header {}
+  export class Content {}
+  export class Footer {}
+}
+
+// page.ts
+// reference 表示当前组件依赖于 path中的组件
+/// <reference path='./components.ts'>
+
+namespace Home {
+  export class Page {
+    constructor() {
+      new Components.Header();
+      new Components.Content();
+      new Components.Footer();
+    }
+  }
+}
+```
+
+`namespace` 也支持子命名空间和interface。
+
+```js
+namespace Components {
+  export namespace SubComponents {
+    export class Test{}
+  }
+
+  export interface User {
+    name: string;
+  }
+}
+```

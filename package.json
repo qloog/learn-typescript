@@ -1,0 +1,23 @@
+{
+  "name": "learn-typescript",
+  "version": "1.0.0",
+  "description": "## Requirement",
+  "main": "test.js",
+  "scripts": {
+    "dev": "ts-node ./test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qloog/learn-typescript.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qloog/learn-typescript/issues"
+  },
+  "homepage": "https://github.com/qloog/learn-typescript#readme",
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
