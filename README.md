@@ -620,7 +620,7 @@ enum Status {
 console.log(Status[1]); // OFFLINE
 ```
 
-### 泛型
+### 泛型(函数和类)
 
 泛型：generic 泛指的类型
 
