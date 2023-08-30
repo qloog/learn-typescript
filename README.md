@@ -762,3 +762,69 @@ namespace Components {
   }
 }
 ```
+
+### 编写类型定义文件 d.ts
+
+定义全局变量
+
+```js
+// jquery.d.ts
+declare var $: (param: () => void) => void;
+
+// page.ts
+$(function() {
+  alert(123);
+});
+```
+
+定义全局函数
+
+```js
+// jquery.d.ts
+// 可以定义函数的不同形式，即函数的重载
+declare function $(param: () => void): void;
+declare function $(param: string): {
+  html: (html: string) => {};
+};
+
+// page.ts
+$(function() {
+  $('body').html('<div>123</div>');
+});
+```
+
+使用interface的方式实现函数重载
+
+```js
+interface JqueryInstance {
+  html: (html: string) => JqueryInstance;
+}
+
+interface JQuery {
+  (readyFunc: () => void): void;
+  (selector: string): JqueryInstance;
+}
+declare var $: JQuery;
+```
+
+es6 模块化的类型描述
+
+```js
+declare module 'jquery' {
+ interface JqueryInstance {
+    html: (html: string) => JqueryInstance;
+  }
+
+  function $(param: () => void): void;
+  function (selector: string): JqueryInstance;
+
+  // $.fn.init();
+  namespace $ {
+    namespace fn {
+      class init {}
+    }
+  }
+  // 需要导出，否则使用会报错
+  export = $;
+}
+```
