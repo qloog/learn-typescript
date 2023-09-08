@@ -4,7 +4,7 @@
   "description": "## Requirement",
   "main": "test.js",
   "scripts": {
-    "dev": "ts-node ./test.ts"
+    "dev": "ts-node ./src/index.ts"
   },
   "repository": {
     "type": "git",

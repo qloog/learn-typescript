@@ -765,6 +765,8 @@ namespace Components {
 
 ### 编写类型定义文件 d.ts
 
+> 以定义jquery 类型文件为例
+
 定义全局变量
 
 ```js
@@ -828,3 +830,280 @@ declare module 'jquery' {
   export = $;
 }
 ```
+
+### 类的装饰器
+
+装饰器本身是一个函数, 通过@符号来使用。接收的参数是一个构造函数。
+
+装饰器的运行时机：是在定义类的时候去执行，而不是在类实例化的时候。
+
+装饰器的执行时从下到上的。
+
+```js
+// 简单装饰器
+function testDecorator1(constructor: any) {
+  constructor.prototype.getName = () => {
+    console.log('test');
+  }
+  // 后被执行
+  console.log('decorator');
+}
+function testDecorator2(constructor: any) {
+  // 先被执行
+  console.log('decorator1');
+}
+
+// 含有参数的装饰器
+// new (...args: any[]) => any 代表是一个构造函数
+function testDecorator<T extends new (...args: any[]) => any>(constructor: T) {
+  return class extends constructor {
+    // 修改属性内容
+    name = 'test2';
+
+    // 给类增加方法
+    getName() {
+      return this.name;
+    }
+  };
+}
+
+@testDecorator
+class Test {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+const test = new Test('test');
+// Output: test2
+```
+
+注意：如果要在ts中使用装饰器，需要在配置 `tsconfig.json` 中打开一下配置
+
+```js
+...
+  "experimentalDecorators": true,
+  "emitDecoratorMetadata": true,
+...
+```
+
+使用工厂方式进行装饰
+
+```js
+function testDecorator() {
+  return function<T extends new (...args: any[]) => any>(constructor: T) {
+    return class extends constructor {
+      // 修改属性内容
+      name = 'test2';
+
+      // 给类增加方法
+      getName() {
+        return this.name;
+      }
+    };
+  };
+}
+
+const Test = testDecorator()(
+  class {
+    name: string;
+
+    constructor(name: string) {
+      this.name = name;
+    }
+  }
+)
+
+const test = new Test('test');
+console.log(test.getName());
+// 此时输出的getName就会有书写提示了
+```
+
+### 方法装饰器
+
+主要是对类中的方法进行装饰。
+
+装饰器的运行时机：也是在定义方法的时候去执行，而不是在类实例化的时候。
+
+```js
+// 普通方法，target 对应的是类的 prototype
+// 静态方法，target 对应的是类的构造函数
+// key是方法的名字，这里是 getName
+// descriptor 可以修改一些属性来控制类的行为，比如复写方法
+function getNameDecorator(target: any, key: string, descriptor: PropertyDescriptor) {
+  // 设置为true后，不能对方法进行重写
+  descriptor.writable = false;
+
+  descriptor.value = function() {
+    return 'decorator';
+  }
+}
+
+class Test {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  @getNameDecorator
+  getName() {
+    return this.name;
+  }
+}
+
+const test = Test('test');
+// 因为在装饰器里通过descriptor设置writable为false，所以这里重写getName会报错
+test.getName = () => {
+  return '123';
+};
+```
+
+### 访问器的装饰器
+
+```js
+// 普通方法，target 对应的是类的 prototype
+// 静态方法，target 对应的是类的构造函数
+// key是方法的名字，这里是 getName
+// descriptor 可以修改一些属性来控制类的行为，比如复写方法
+function setDecorator(target: any, key: string, descriptor: PropertyDescriptor) {
+  // 设置为true后，不能对方法进行重写
+  descriptor.writable = false;
+}
+
+class Test {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  // 访问器
+  get name() {
+    return this.name;
+  }
+
+  // 访问器的装饰器
+  @setDecorator
+  set name(name: string) {
+    this.name = name;
+  }
+}
+```
+
+### 属性的装饰器
+
+```js
+// target 指类本生
+// key 属性的名字，这里是 name
+function nameDecorator(target: any, key: string): any {
+  // case 1
+  const descriptor: PropertyDescriptor {
+    writable: false
+  };
+  return descriptor;
+
+  // case 2
+  // 如修改name, 其实是修改的是原型上的name, 而不是实例上的name, 
+  // 所以需要通过 (test as any).__proto__.name
+  target[key] = '123';
+}
+
+class Test {
+  @nameDecorator
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+const test = new Test();
+// 此时修改name就会报错
+test.name = 'test';
+```
+
+### 参数的装饰器
+
+```js
+// target 原型
+// key: 方法名
+// paramIndex: 参数所在的位置
+function paramDecorator(target: any, method: string, paramIndex: number) {
+
+}
+
+class Test {
+  getInfo(@paramDecorator name: string, age: number) {
+    console.log(name, age);
+  }
+}
+```
+
+### 装饰器小例子
+
+```js
+// target 原型
+// key: 方法名
+// descriptor: 描述器
+function catchError(target: any, key: string, descriptor: PropertyDescriptor) {
+  const fn = descriptor.value;
+  descriptor.value = function() {
+    try {
+      fn();
+    } cache (e) {
+      console.log('userInfo 不存在');
+    }
+  }
+}
+
+// catchError 装饰器可以被复用，而不用在多个方法内分别写 `try catch`
+class Test {
+  @catchError
+  getName() {
+    return userInfo.name;
+  }
+
+  @catchError
+  getAge() {
+    return userInfo.age;
+  }
+}
+```
+
+如果想 打印不同的提示，可以将装饰器改为工厂模式
+
+```js
+function catchError(msg: string) {
+  return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    const fn = descriptor.value;
+    descriptor.value = function() {
+      try {
+        fn();
+      } cache (e) {
+        console.log(msg);
+      }
+    };
+  };
+}
+
+// catchError 装饰器可以被复用，而不用在多个方法内分别写 `try catch`
+class Test {
+  @catchError('userInfo.name 不存在')
+  getName() {
+    return userInfo.name;
+  }
+
+  @catchError('userInfo.age 不存在')
+  getAge() {
+    return userInfo.age;
+  }
+}
+```
+
+## Reference
+
+- https://www.youtube.com/playlist?list=PL9nxfq1tlKKkG8HjoiTDk6YFeyQslC8s6
+- https://create-react-app.dev/docs/adding-typescript
