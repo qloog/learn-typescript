@@ -1107,3 +1107,6 @@ class Test {
 
 - https://www.youtube.com/playlist?list=PL9nxfq1tlKKkG8HjoiTDk6YFeyQslC8s6
 - https://create-react-app.dev/docs/adding-typescript
+- https://typescriptlang.org
+- https://ts-ast-viewer.com
+- https://redux.js.org
