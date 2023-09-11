@@ -73,7 +73,7 @@ npm install ts-node@8.4.1 -g
 const count: number = 2023;
 ```
 
-其实这里 `count` 除了是一个数字类型以外，还用于数字类型的属性和方法。比如 `count.toString()`
+其实这里 `count` 除了是一个数字类型以外，还拥有数字类型的属性和方法。比如 `count.toString()`
 
 ### 基础类型和对象类型
 
