@@ -25,9 +25,10 @@
 2、`tab`, 配置 Editor 的 `Tab Size` 为 2  
 3、`save`, 把 Editor 的 `Format On Save` 勾选上 ✅
 
-### 3. 安装插件
+### 3. 安装 `VS Code`插件
 
 - prettier 自动格式化代码
+- VS Code ES7+ React/Redux/React-Native/JS snippets (dsznajder)
 
 ### 4. 安装 typescript
 
